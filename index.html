@@ -4,6 +4,15 @@
   <meta charset="UTF-8">
   <title>Moje portfolio</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+  /* Animace: složená závorka + psaní od středu */
+  #brace-typing{display:flex;align-items:center;justify-content:center;gap:18px;margin:28px 0;font-family:monospace;font-size:40px}
+  .brace{display:inline-block;transition:transform 520ms cubic-bezier(.2,.8,.2,1),opacity 300ms;transform-origin:center;transform:scaleX(0);opacity:0}
+  .brace.open{transform:scaleX(1);opacity:1}
+  #animatedText{display:inline-block;min-width:180px;text-align:center;font-size:32px;letter-spacing:2px}
+  #animatedText span{display:inline-block;opacity:0;transform:translateY(8px);transition:opacity 150ms ease,transform 150ms ease}
+  #animatedText span.visible{opacity:1;transform:translateY(0)}
+  </style>
 </head>
 <body>
     <header class="header-flex">
@@ -13,6 +22,12 @@
     <p>Student / Programátor </p>
   </div>
     </header>
+
+  <section id="brace-typing">
+    <div class="brace left">{</div>
+    <div id="animatedText" aria-live="polite" aria-atomic="true"></div>
+    <div class="brace right">}</div>
+  </section>
 
 
 
@@ -44,5 +59,55 @@
     <p>Telefon: +420 720 429 505 </p>
   </section>
 
+  <script>
+  document.addEventListener('DOMContentLoaded',()=>{
+    const leftBrace = document.querySelector('.brace.left');
+    const rightBrace = document.querySelector('.brace.right');
+    const container = document.getElementById('animatedText');
+    const word = 'DEVELOPER';
+    container.innerHTML = '';
+    const chars = word.split('');
+    chars.forEach(ch=>{
+      const span = document.createElement('span');
+      span.textContent = ch;
+      container.appendChild(span);
+    });
+    const spans = container.querySelectorAll('span');
+
+    function sequenceOrder(n){
+      const seq = [];
+      if(n % 2 === 1){
+        const center = Math.floor(n/2);
+        seq.push(center);
+        let l = center-1, r = center+1;
+        while(l >= 0 || r < n){ if(l >= 0) seq.push(l); if(r < n) seq.push(r); l--; r++; }
+      } else {
+        let l = n/2 - 1, r = n/2;
+        while(l >= 0 || r < n){ if(l >= 0) seq.push(l); if(r < n) seq.push(r); l--; r++; }
+      }
+      return seq;
+    }
+
+    const order = sequenceOrder(spans.length);
+    const baseDelay = 260;
+    const step = 140;
+    const totalTime = baseDelay + order.length * step + 800;
+
+    function play(){
+      leftBrace.classList.add('open');
+      rightBrace.classList.add('open');
+      spans.forEach(s=>s.classList.remove('visible'));
+      order.forEach((idx,i)=>{
+        setTimeout(()=>{ spans[idx].classList.add('visible'); }, baseDelay + i*step);
+      });
+      setTimeout(()=>{ leftBrace.classList.remove('open'); rightBrace.classList.remove('open'); }, totalTime - 300);
+    }
+
+    play();
+    setInterval(play, totalTime + 400);
+  });
+  </script>
+
 </body>
 </html>
+
